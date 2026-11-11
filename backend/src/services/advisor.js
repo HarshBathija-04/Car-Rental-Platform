@@ -59,6 +59,7 @@ export async function recommendCars(message) {
             'Consider passengers, luggage, terrain, budget (prices are INR per day) and city. ' +
             'If nothing fits, say so politely and suggest the closest option. Never invent cars, prices or discounts. ' +
             'Answer only about car rental; decline anything else briefly. ' +
+            'Refer to cars by year, make and model; never mention internal ids in the reply text. ' +
             'Respond with JSON: {"reply": "<= 90 words, friendly, explains why", "carIds": [number]}.\n' +
             `Fleet: ${JSON.stringify(fleetSummary(cars))}`,
         },

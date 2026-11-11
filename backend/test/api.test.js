@@ -144,6 +144,14 @@ describe('platform', () => {
     expect(good.headers['access-control-allow-origin']).toBe('http://localhost:5206');
   });
 
+  it('rejects oversized bodies with a JSON 413', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'a'.repeat(30_000) });
+    expect(res.status).toBe(413);
+    expect(res.body.error.code).toBe('PAYLOAD_TOO_LARGE');
+  });
+
   it('degrades gracefully when the AI key is missing', async () => {
     const res = await request(app).post('/api/ai/recommend').send({ message: 'Weekend trip for four to Goa' });
     expect(res.status).toBe(503);
