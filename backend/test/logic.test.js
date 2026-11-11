@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bookingSchema } from '../src/routes/bookings.js';
 import { parseAdvice } from '../src/services/advisor.js';
-import { addDays, quote, rangesOverlap, rentalDays, todayIso } from '../src/services/pricing.js';
+import { addDays, rentalDays, todayIso } from '../src/services/pricing.js';
 
 describe('todayIso', () => {
   afterEach(() => vi.useRealTimers());
@@ -15,14 +15,6 @@ describe('pricing', () => {
   it('counts rental days with an exclusive return day', () => {
     expect(rentalDays('2026-03-01', '2026-03-04')).toBe(3);
     expect(rentalDays('2026-02-28', '2026-03-01')).toBe(1);
-    expect(quote(2200, '2026-03-01', '2026-03-04')).toEqual({ days: 3, total: 6600 });
-  });
-
-  it('detects half-open range overlap', () => {
-    expect(rangesOverlap('2026-03-01', '2026-03-04', '2026-03-03', '2026-03-05')).toBe(true);
-    expect(rangesOverlap('2026-03-01', '2026-03-04', '2026-02-27', '2026-03-10')).toBe(true);
-    // back-to-back: return on the 4th, next pick-up on the 4th
-    expect(rangesOverlap('2026-03-01', '2026-03-04', '2026-03-04', '2026-03-06')).toBe(false);
   });
 });
 

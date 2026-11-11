@@ -5,8 +5,8 @@ import { cancelBooking, createBooking, listUserBookings } from '../services/book
 import { addDays, rentalDays, todayIso } from '../services/pricing.js';
 import { id, isoDate } from '../validation.js';
 
-export const MAX_RENTAL_DAYS = 30;
-export const MAX_ADVANCE_DAYS = 365;
+const MAX_RENTAL_DAYS = 30;
+const MAX_ADVANCE_DAYS = 365;
 
 export const bookingSchema = z
   .object({ carId: id, startDate: isoDate, endDate: isoDate })

@@ -22,8 +22,7 @@ const limiter = (limit, windowMs) =>
 export function createApp() {
   const app = express();
   app.set('trust proxy', 1); // Render terminates TLS in front of the app
-  app.disable('x-powered-by');
-  app.use(helmet());
+  app.use(helmet()); // also removes X-Powered-By
   app.use(
     cors({
       origin: config.frontendUrls,

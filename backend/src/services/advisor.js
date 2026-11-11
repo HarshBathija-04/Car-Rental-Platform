@@ -3,7 +3,7 @@ import { config } from '../config.js';
 import { HttpError } from '../errors.js';
 import { searchCars } from './cars.js';
 
-export const ADVISOR_MODEL = 'openai/gpt-oss-120b';
+const ADVISOR_MODEL = 'openai/gpt-oss-120b';
 
 let client;
 const groq = () => (client ??= new Groq({ apiKey: config.groqApiKey, timeout: 20_000, maxRetries: 1 }));

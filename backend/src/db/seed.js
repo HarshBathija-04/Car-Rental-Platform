@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import bcrypt from 'bcryptjs';
 import { addDays, todayIso } from '../services/pricing.js';
 import { migrate } from './migrate.js';
-import { pool } from './pool.js';
+import { pool, withTransaction } from './pool.js';
 
 export const DEMO_USER = { name: 'Demo Driver', email: 'demo@ridex.app', password: 'ridex-demo-2026' };
 
@@ -13,7 +13,7 @@ const CUSTOMERS = [
   { name: 'Kabir Singh', email: 'kabir.singh@example.com' },
 ];
 
-export const CARS = [
+const CARS = [
   {
     slug: 'toyota-rav4-hybrid-2021',
     make: 'Toyota',
@@ -155,10 +155,8 @@ async function insertBookings(client, specs, today) {
   }
 }
 
-export async function seed() {
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+export function seed() {
+  return withTransaction(async (client) => {
     const demoHash = await bcrypt.hash(DEMO_USER.password, 12);
     await client.query(
       `INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3)
@@ -213,13 +211,7 @@ export async function seed() {
     if (demo.rows[0].total === 0) await insertBookings(client, DEMO_HISTORY, today);
     // Re-fill the calendar when the demo has run out of upcoming trips (e.g. a visitor cancelled them).
     if (demo.rows[0].upcoming === 0) await insertBookings(client, UPCOMING, today);
-    await client.query('COMMIT');
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  });
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

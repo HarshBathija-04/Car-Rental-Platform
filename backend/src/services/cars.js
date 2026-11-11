@@ -1,6 +1,6 @@
 import { query } from '../db/pool.js';
 
-export const CAR_COLUMNS = `
+const CAR_COLUMNS = `
   c.id, c.slug, c.make, c.model, c.year, c.category, c.seats, c.fuel, c.transmission,
   c.efficiency_kmpl::float AS "efficiencyKmpl", c.price_per_day AS "pricePerDay",
   c.city, c.color, c.image, c.description, c.features`;

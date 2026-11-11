@@ -1,6 +1,6 @@
 import { query, withTransaction } from '../db/pool.js';
 import { HttpError } from '../errors.js';
-import { quote } from './pricing.js';
+import { rentalDays } from './pricing.js';
 
 const BOOKING_COLUMNS = `
   b.id, b.car_id AS "carId", b.start_date AS "startDate", b.end_date AS "endDate",
@@ -28,7 +28,7 @@ export async function createBooking({ userId, carId, startDate, endDate }) {
       );
     }
 
-    const { total } = quote(car.price_per_day, startDate, endDate);
+    const total = rentalDays(startDate, endDate) * car.price_per_day;
     const { rows } = await client.query(
       `INSERT INTO bookings AS b (user_id, car_id, start_date, end_date, total_price)
        VALUES ($1, $2, $3, $4, $5) RETURNING ${BOOKING_COLUMNS}`,
