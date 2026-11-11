@@ -23,7 +23,11 @@ export default function AvailabilityPicker({ today, booked, start, end, onChange
       <div className="picker__head">
         <p className="picker__title">Next 4 weeks</p>
         <p className="picker__prompt" aria-live="polite">
-          {choosingReturn ? 'Now pick your return day' : 'Tap a free day to set pick-up'}
+          {choosingReturn
+            ? 'Now choose your return day'
+            : end
+              ? 'Choose a day to start over'
+              : 'Choose a free pick-up day'}
         </p>
       </div>
       <ul className="picker__grid">
