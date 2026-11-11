@@ -44,7 +44,6 @@
   --color-danger-soft: hsl(0, 79%, 95%);
   --color-cerise-ink: hsl(329, 63%, 34%);
   --color-violet-ink: hsl(262, 50%, 40%);
-  --focus-ring: 0 0 0 3px hsla(204, 91%, 53%, 0.55);
 
   /* typography */
   --ff-nunito: 'Nunito', system-ui, sans-serif;
@@ -172,10 +171,10 @@ ion-icon {
   flex-shrink: 0;
   font-size: 1.15em;
 }
+/* outline, not box-shadow, so component shadows can never hide the focus ring */
 :focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-6);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 .sr-only {
   position: absolute;
@@ -1747,6 +1746,9 @@ textarea::placeholder {
 }
 
 /* ---------- footer ---------- */
+.footer :focus-visible {
+  outline-color: var(--white);
+}
 .footer {
   margin-top: auto;
   padding-top: var(--space-12);
