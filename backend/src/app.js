@@ -36,7 +36,9 @@ export function createApp() {
 
   app.use(healthRouter);
   app.get('/', (req, res) => res.json({ name: 'ridex-api', docs: '/health, /api/cars' }));
-  app.use('/api/auth', limiter(20, 15 * 60_000), authRouter);
+  // Throttle credential guessing, not the session check that runs on every page load.
+  app.post(['/api/auth/login', '/api/auth/register'], limiter(20, 15 * 60_000));
+  app.use('/api/auth', authRouter);
   app.use('/api/cars', carsRouter);
   app.use('/api/bookings', bookingsRouter);
   app.use('/api/ai', limiter(8, 60_000), aiRouter);
