@@ -1201,7 +1201,8 @@ textarea::placeholder {
 }
 @media (min-width: 1100px) {
   .filters {
-    grid-template-columns: 1.6fr repeat(6, minmax(0, 1fr));
+    /* date inputs need room for the dd-mm-yyyy mask and the picker icon */
+    grid-template-columns: 1.4fr repeat(2, minmax(9.5rem, 1fr)) repeat(4, minmax(0, 1fr));
   }
   .filters__search {
     grid-column: auto;

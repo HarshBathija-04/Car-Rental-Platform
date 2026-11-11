@@ -88,7 +88,7 @@ export default function Cars() {
                 className="field__control"
                 type="search"
                 value={q}
-                placeholder="e.g. BMW, Escalade"
+                placeholder="e.g. BMW"
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
@@ -146,7 +146,11 @@ export default function Cars() {
             {cars ? (
               <>
                 <strong>{cars.length}</strong> {cars.length === 1 ? 'car' : 'cars'}
-                {datesValid ? ` free for ${formatRange(from, to)}` : ' in the fleet'}
+                {datesValid
+                  ? ` free for ${formatRange(from, to)}`
+                  : hasFilters
+                    ? ` ${cars.length === 1 ? 'matches' : 'match'} your filters`
+                    : ' in the fleet'}
               </>
             ) : (
               'Loading cars…'
@@ -155,7 +159,7 @@ export default function Cars() {
               <span className="results-bar__hint"> · add both dates to check availability</span>
             )}
           </p>
-          {hasFilters && (
+          {hasFilters && cars?.length > 0 && (
             <button type="button" className="btn btn--ghost btn--sm" onClick={reset}>
               Clear filters
             </button>
@@ -176,7 +180,7 @@ export default function Cars() {
           >
             {datesValid
               ? 'Everything that fits is booked for those dates. Try shifting by a day or widening the filters.'
-              : 'Try a different city, type or budget.'}
+              : 'Try another make or model, or loosen the city, type, seats or budget.'}
           </EmptyState>
         ) : (
           <CarGrid cars={cars} loading={loading} search={dateSearch} skeletons={6} />
