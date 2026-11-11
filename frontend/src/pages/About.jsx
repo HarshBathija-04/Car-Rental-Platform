@@ -24,7 +24,7 @@ const STACK = [
   ['API', 'Node.js, Express 5, zod validation, JWT auth with bcrypt'],
   ['Data', 'PostgreSQL with schema-scoped migrations and a seeded demo fleet'],
   ['AI', 'Groq (gpt-oss-120b) called only from the server'],
-  ['Hosting', 'Vercel for the web app, Render for the API and database'],
+  ['Hosting', 'Vercel for the web app, Render for the API, one shared PostgreSQL database'],
 ];
 
 export default function About() {

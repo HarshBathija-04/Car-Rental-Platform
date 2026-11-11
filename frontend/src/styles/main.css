@@ -831,6 +831,7 @@ textarea::placeholder {
 }
 .hero__media {
   position: relative;
+  order: 1; /* small screens: search first, photo after it */
 }
 .hero__media img {
   width: 100%;
@@ -903,6 +904,9 @@ textarea::placeholder {
     grid-template-columns: 1fr 1.05fr;
     align-items: center;
     column-gap: var(--space-12);
+  }
+  .hero__media {
+    order: 0;
   }
   .hero__media img {
     aspect-ratio: 1391 / 1198;

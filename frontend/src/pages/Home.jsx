@@ -35,7 +35,7 @@ export default function Home() {
       <section className="hero">
         <div className="container hero__inner">
           <div className="hero__content">
-            <p className="eyebrow">Self-drive rentals in {CITIES.join(' · ')}</p>
+            <p className="eyebrow">Self-drive rentals in {new Intl.ListFormat('en-GB').format(CITIES)}</p>
             <h1 className="hero__title">Pick the dates. We will show you what is free.</h1>
             <p className="hero__text">
               No more enquiring about cars that turn out to be booked. Every car on Ridex shows live availability, and
