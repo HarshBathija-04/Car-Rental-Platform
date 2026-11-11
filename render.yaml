@@ -1,0 +1,29 @@
+# Render Blueprint: the Ridex API.
+# The PostgreSQL database is shared across projects and created once by hand,
+# so there is deliberately no `databases:` block. Set DATABASE_URL to it.
+services:
+  - type: web
+    name: ridex-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    # Migrations and the seed are idempotent, so running them on every boot is safe.
+    startCommand: npm run migrate && npm run seed && npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: DB_SCHEMA
+        value: car_rental
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

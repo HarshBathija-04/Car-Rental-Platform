@@ -70,7 +70,9 @@ describe('auth', () => {
   it('logs the demo user in and rejects a wrong password', async () => {
     const ok = await request(app).post('/api/auth/login').send(DEMO_USER);
     expect(ok.status).toBe(200);
-    const bad = await request(app).post('/api/auth/login').send({ ...DEMO_USER, password: 'nope-nope' });
+    const bad = await request(app)
+      .post('/api/auth/login')
+      .send({ ...DEMO_USER, password: 'nope-nope' });
     expect(bad.status).toBe(401);
   });
 

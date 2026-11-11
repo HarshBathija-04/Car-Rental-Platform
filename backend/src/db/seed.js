@@ -64,8 +64,7 @@ export const CARS = [
     city: 'Pune',
     color: 'Pure White',
     image: '/images/car-3.jpg',
-    description:
-      'Compact, punchy and easy to park. The smart pick for city errands and quick trips to Lonavala.',
+    description: 'Compact, punchy and easy to park. The smart pick for city errands and quick trips to Lonavala.',
     features: ['DSG gearbox', 'Sport suspension', 'Android Auto', 'Rear camera'],
   },
   {

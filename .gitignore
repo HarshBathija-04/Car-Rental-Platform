@@ -50,3 +50,8 @@ Desktop.ini
 # Logs
 logs/
 *.log
+
+# Local env files (examples are committed)
+.env.*
+!.env.example
+coverage/

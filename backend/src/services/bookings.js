@@ -20,7 +20,12 @@ export async function createBooking({ userId, carId, startDate, endDate }) {
       [carId, startDate, endDate],
     );
     if (clash.rows.length) {
-      throw new HttpError(409, 'DATES_UNAVAILABLE', 'This car is already booked for some of those dates', clash.rows[0]);
+      throw new HttpError(
+        409,
+        'DATES_UNAVAILABLE',
+        'This car is already booked for some of those dates',
+        clash.rows[0],
+      );
     }
 
     const { total } = quote(car.price_per_day, startDate, endDate);
