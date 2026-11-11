@@ -1,7 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { bookingSchema } from '../src/routes/bookings.js';
 import { parseAdvice } from '../src/services/advisor.js';
 import { addDays, quote, rangesOverlap, rentalDays, todayIso } from '../src/services/pricing.js';
+
+describe('todayIso', () => {
+  afterEach(() => vi.useRealTimers());
+  it('uses the India calendar date, not UTC', () => {
+    vi.useFakeTimers({ now: new Date('2026-11-11T20:00:00Z') }); // 01:30 IST on the 12th
+    expect(todayIso()).toBe('2026-11-12');
+  });
+});
 
 describe('pricing', () => {
   it('counts rental days with an exclusive return day', () => {

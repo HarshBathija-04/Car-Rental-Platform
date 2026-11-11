@@ -1,9 +1,16 @@
-import { describe, expect, it } from 'vitest';
-import { addDays, daysBetween, formatINR, isDayBooked, isRangeFree, validateRange } from './dates.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { addDays, daysBetween, formatINR, isDayBooked, isRangeFree, todayIso, validateRange } from './dates.js';
 
 const booked = [{ startDate: '2026-03-10', endDate: '2026-03-13' }];
 
 describe('date helpers', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('uses the India calendar date for today', () => {
+    vi.useFakeTimers({ now: new Date('2026-11-11T20:00:00Z') }); // 01:30 IST on the 12th
+    expect(todayIso()).toBe('2026-11-12');
+  });
+
   it('adds days across month ends', () => {
     expect(addDays('2026-02-27', 3)).toBe('2026-03-02');
     expect(daysBetween('2026-02-27', '2026-03-02')).toBe(3);

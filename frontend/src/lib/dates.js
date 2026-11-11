@@ -1,9 +1,7 @@
 const DAY_MS = 86_400_000;
-const pad = (n) => String(n).padStart(2, '0');
 
-/** Local calendar date as YYYY-MM-DD. */
-export const toIso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-export const todayIso = () => toIso(new Date());
+/** Today in India as YYYY-MM-DD, matching the API wherever the visitor is. */
+export const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 export const addDays = (iso, n) => new Date(Date.parse(iso) + n * DAY_MS).toISOString().slice(0, 10);
 export const daysBetween = (start, end) => Math.round((Date.parse(end) - Date.parse(start)) / DAY_MS);
 
