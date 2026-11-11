@@ -93,3 +93,22 @@ Ionicon
 --shadow-1: 3px 3px 9px hsla(240, 14%, 69%, 0.2);
 --shadow-2: 3px 3px 9px hsla(204, 92%, 59%, 0.3);
 ```
+
+---
+
+## Accessible additions (portfolio upgrade)
+
+The palette above is kept as-is in `frontend/src/styles/main.css`. A few roles are added so
+text always meets WCAG AA (4.5:1) on its background:
+
+| Role | Value | Why |
+| --- | --- | --- |
+| Primary button / link | `--sapphire` (hover `hsl(211, 100%, 28%)`) | White on `--carolina-blue` is about 2.9:1; `--carolina-blue` stays as the accent and focus ring |
+| Muted text | `--independence` | `--manatee` text on white is below 3:1; `--manatee` is used for borders only |
+| Success ink | `hsl(152, 63%, 24%)` on `--honey-dew` | |
+| Danger ink | `hsl(0, 65%, 42%)` | |
+| Cerise ink | `hsl(329, 63%, 34%)` on `--mimi-pink` / `--lavender-blush` | |
+| Violet ink | `hsl(262, 50%, 40%)` on `--pale-purple-pantone` | |
+
+Interaction transitions use 150-250ms (`--dur-fast`, `--dur-med`); the original `--transition: 0.5s ease`
+is kept for the slow image zoom on car cards. Motion is disabled under `prefers-reduced-motion`.
