@@ -61,7 +61,7 @@ export default function CarCard({ car, search = '' }) {
   );
 }
 
-export function CarCardSkeleton() {
+function CarCardSkeleton() {
   return (
     <div className="car-card car-card--skeleton" aria-hidden="true">
       <div className="skeleton car-card__media"></div>

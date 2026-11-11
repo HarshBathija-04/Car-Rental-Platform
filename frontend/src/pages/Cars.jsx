@@ -7,6 +7,17 @@ import { addDays, formatINR, formatRange, todayIso } from '../lib/dates.js';
 import { useApi } from '../lib/useApi.js';
 
 const FILTER_KEYS = ['q', 'city', 'category', 'seats', 'maxPrice', 'from', 'to'];
+const SELECTS = [
+  { key: 'city', label: 'City', any: 'Any city', options: CITIES.map((c) => [c, c]) },
+  { key: 'category', label: 'Type', any: 'Any type', options: CATEGORIES.map((c) => [c, c]) },
+  { key: 'seats', label: 'Seats', any: 'Any', options: SEAT_OPTIONS.map((n) => [n, `${n}+ seats`]) },
+  {
+    key: 'maxPrice',
+    label: 'Budget',
+    any: 'Any budget',
+    options: PRICE_OPTIONS.map((n) => [n, `Up to ${formatINR(n)} / day`]),
+  },
+];
 
 export default function Cars() {
   const [params, setParams] = useSearchParams();
@@ -108,74 +119,26 @@ export default function Cars() {
               onChange={(e) => update('to', e.target.value)}
             />
           </div>
-          <div className="field">
-            <label htmlFor="f-city" className="field__label">
-              City
-            </label>
-            <select
-              id="f-city"
-              className="field__control"
-              value={get('city')}
-              onChange={(e) => update('city', e.target.value)}
-            >
-              <option value="">Any city</option>
-              {CITIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="f-category" className="field__label">
-              Type
-            </label>
-            <select
-              id="f-category"
-              className="field__control"
-              value={get('category')}
-              onChange={(e) => update('category', e.target.value)}
-            >
-              <option value="">Any type</option>
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="f-seats" className="field__label">
-              Seats
-            </label>
-            <select
-              id="f-seats"
-              className="field__control"
-              value={get('seats')}
-              onChange={(e) => update('seats', e.target.value)}
-            >
-              <option value="">Any</option>
-              {SEAT_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}+ seats
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="f-price" className="field__label">
-              Budget
-            </label>
-            <select
-              id="f-price"
-              className="field__control"
-              value={get('maxPrice')}
-              onChange={(e) => update('maxPrice', e.target.value)}
-            >
-              <option value="">Any budget</option>
-              {PRICE_OPTIONS.map((p) => (
-                <option key={p} value={p}>
-                  Up to {formatINR(p)} / day
-                </option>
-              ))}
-            </select>
-          </div>
+          {SELECTS.map(({ key, label, any, options }) => (
+            <div className="field" key={key}>
+              <label htmlFor={`f-${key}`} className="field__label">
+                {label}
+              </label>
+              <select
+                id={`f-${key}`}
+                className="field__control"
+                value={get(key)}
+                onChange={(e) => update(key, e.target.value)}
+              >
+                <option value="">{any}</option>
+                {options.map(([value, text]) => (
+                  <option key={value} value={value}>
+                    {text}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
         </form>
 
         <div className="results-bar" aria-live="polite">

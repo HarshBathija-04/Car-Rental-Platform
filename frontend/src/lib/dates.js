@@ -6,8 +6,7 @@ export const addDays = (iso, n) => new Date(Date.parse(iso) + n * DAY_MS).toISOS
 export const daysBetween = (start, end) => Math.round((Date.parse(end) - Date.parse(start)) / DAY_MS);
 
 /** Half-open ranges [start, end): a return day can be the next renter's pick-up day. */
-export const overlaps = (aStart, aEnd, bStart, bEnd) => aStart < bEnd && bStart < aEnd;
-export const isRangeFree = (start, end, booked) => !booked.some((b) => overlaps(start, end, b.startDate, b.endDate));
+export const isRangeFree = (start, end, booked) => !booked.some((b) => start < b.endDate && b.startDate < end);
 export const isDayBooked = (day, booked) => booked.some((b) => b.startDate <= day && day < b.endDate);
 
 const asDate = (iso) => new Date(`${iso}T00:00:00`);

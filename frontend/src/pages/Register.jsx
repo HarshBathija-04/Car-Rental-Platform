@@ -1,55 +1,32 @@
-import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import Field from '../components/Field.jsx';
-import { api, fieldErrors } from '../lib/api.js';
-import { useAuth, useToast } from '../lib/context.js';
+import { useAuthForm } from '../lib/useAuthForm.js';
+
+const validate = (form) => ({
+  ...(form.name.trim().length < 2 && { name: 'Enter your name' }),
+  ...(!/^\S+@\S+\.\S+$/.test(form.email) && { email: 'Enter a valid email address' }),
+  ...(form.password.length < 8 && { password: 'Use at least 8 characters' }),
+  ...(form.confirm !== form.password && { confirm: 'Passwords do not match' }),
+});
 
 export default function Register() {
-  const { user, signIn } = useAuth();
-  const toast = useToast();
-  const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from;
-  const target = from ? `${from.pathname}${from.search || ''}` : '/cars';
+  const { form, set, errors, formError, submitting, submit, target, signedIn } = useAuthForm({
+    initial: { name: '', email: '', password: '', confirm: '' },
+    endpoint: '/api/auth/register',
+    validate,
+    toBody: ({ name, email, password }) => ({ name, email, password }),
+    welcome: (user) => `Welcome to Ridex, ${user.name.split(' ')[0]}. Pick a car and some dates.`,
+    fallback: '/cars',
+  });
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
-  const [errors, setErrors] = useState({});
-  const [formError, setFormError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  if (user && !submitting) return <Navigate to={target} replace />;
-
-  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
-
-  const submit = async (e) => {
-    e.preventDefault();
-    const local = {};
-    if (form.name.trim().length < 2) local.name = 'Enter your name';
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) local.email = 'Enter a valid email address';
-    if (form.password.length < 8) local.password = 'Use at least 8 characters';
-    if (form.confirm !== form.password) local.confirm = 'Passwords do not match';
-    setErrors(local);
-    setFormError('');
-    if (Object.keys(local).length) return;
-    setSubmitting(true);
-    try {
-      const { name, email, password } = form;
-      const session = await api('/api/auth/register', { method: 'POST', body: { name, email, password } });
-      signIn(session);
-      toast('Account created. Pick a car and some dates.');
-      navigate(target, { replace: true });
-    } catch (err) {
-      setErrors(fieldErrors(err));
-      setFormError(err.message);
-      setSubmitting(false);
-    }
-  };
+  if (signedIn) return <Navigate to={target} replace />;
 
   return (
     <div className="page page--auth">
       <div className="auth-card">
         <h1 className="auth-card__title">Create your account</h1>
-        <p className="muted">It takes a few seconds and keeps your trips in one place.</p>
+        <p className="muted">It takes a few seconds and keeps all your trips in one place.</p>
 
         {formError && (
           <p className="notice notice--error" role="alert">
@@ -95,7 +72,7 @@ export default function Register() {
             error={errors.confirm}
           />
           <button type="submit" className="btn btn--primary btn--lg btn--block" disabled={submitting}>
-            {submitting ? 'Creating account…' : 'Create account'}
+            {submitting ? 'Creating your account…' : 'Create account'}
           </button>
         </form>
         <p className="auth-card__switch">
