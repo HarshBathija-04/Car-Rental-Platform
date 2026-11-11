@@ -1,84 +1,112 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth, useToast } from '../lib/context.js';
 
-function Navbar() {
-  const [isNavActive, setIsNavActive] = useState(false);
-  const [isHeaderActive, setIsHeaderActive] = useState(false);
-  const location = useLocation();
+const links = [
+  { to: '/cars', label: 'Fleet' },
+  { to: '/#advisor', label: 'Trip advisor', hash: true },
+  { to: '/about', label: 'About' },
+];
 
-  const toggleNav = () => {
-    setIsNavActive(!isNavActive);
-  };
-
-  const closeNav = () => {
-    setIsNavActive(false);
-  };
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { user, signOut } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY >= 20) {
-        setIsHeaderActive(true);
-      } else {
-        setIsHeaderActive(false);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  return (
-    <header className={`header ${isHeaderActive ? 'active' : ''}`}>
-      <div className="container">
-        
-        <div className={`overlay ${isNavActive ? 'active' : ''}`} onClick={closeNav}></div>
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
-        <Link to="/" className="logo">
-          <img src="/images/logo.svg" alt="Ridex logo" />
+  const close = () => setOpen(false);
+  const handleSignOut = () => {
+    signOut();
+    close();
+    toast('You are signed out', 'info');
+    navigate('/');
+  };
+
+  return (
+    <header className={`header ${scrolled ? 'header--scrolled' : ''}`}>
+      <div className="container header__inner">
+        <Link to="/" className="logo" onClick={close}>
+          <img src="/images/logo.svg" alt="Ridex home" width="70" height="21" />
         </Link>
 
-        <nav className={`navbar ${isNavActive ? 'active' : ''}`}>
-          <ul className="navbar-list">
-            <li>
-              <Link to="/" className="navbar-link" onClick={closeNav}>Home</Link>
-            </li>
-            <li>
-              <Link to="/cars" className="navbar-link" onClick={closeNav}>Explore cars</Link>
-            </li>
-            <li>
-              <Link to="/about" className="navbar-link" onClick={closeNav}>About us</Link>
-            </li>
-            <li>
-              <Link to="/dashboard" className="navbar-link" onClick={closeNav}>Dashboard</Link>
-            </li>
+        <button
+          type="button"
+          className="icon-btn nav-toggle"
+          aria-expanded={open}
+          aria-controls="primary-nav"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <ion-icon name={open ? 'close-outline' : 'menu-outline'} aria-hidden="true"></ion-icon>
+        </button>
+
+        <nav id="primary-nav" className={`nav ${open ? 'nav--open' : ''}`} aria-label="Primary">
+          <ul className="nav__list">
+            {links.map((l) => (
+              <li key={l.to}>
+                {/* NavLink ignores the hash, so a hash link would look active on every visit to / */}
+                {l.hash ? (
+                  <Link to={l.to} className="nav__link" onClick={close}>
+                    {l.label}
+                  </Link>
+                ) : (
+                  <NavLink to={l.to} className="nav__link" onClick={close} end>
+                    {l.label}
+                  </NavLink>
+                )}
+              </li>
+            ))}
+            {user && (
+              <li>
+                <NavLink to="/trips" className="nav__link" onClick={close}>
+                  My trips
+                </NavLink>
+              </li>
+            )}
           </ul>
-        </nav>
-
-        <div className="header-actions">
-          <div className="header-contact">
-            <a href="tel:+9193245XXXXX" className="contact-link">+91 93245XXXXX</a>
-            <span className="contact-time">Mon - Sat: 9:00 am - 6:00 pm</span>
+          <div className="nav__actions">
+            {user ? (
+              <>
+                <span className="nav__user" title={user.email}>
+                  <span className="avatar" aria-hidden="true">
+                    {user.name.slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="nav__user-name">{user.name.split(' ')[0]}</span>
+                </span>
+                <button type="button" className="btn btn--ghost" onClick={handleSignOut}>
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="btn btn--ghost" onClick={close}>
+                  Sign in
+                </Link>
+                <Link to="/cars" className="btn btn--primary" onClick={close}>
+                  <ion-icon name="car-sport-outline" aria-hidden="true"></ion-icon>
+                  Find a car
+                </Link>
+              </>
+            )}
           </div>
-
-          <Link to="/cars" className="btn" aria-labelledby="aria-label-txt">
-            <ion-icon name="car-outline"></ion-icon>
-            <span id="aria-label-txt">Explore cars</span>
-          </Link>
-
-          <Link to="/login" className="btn user-btn" aria-label="Profile">
-            <ion-icon name="person-outline"></ion-icon>
-          </Link>
-
-          <button className={`nav-toggle-btn ${isNavActive ? 'active' : ''}`} onClick={toggleNav} aria-label="Toggle Menu">
-            <span className="one"></span>
-            <span className="two"></span>
-            <span className="three"></span>
-          </button>
-        </div>
-
+        </nav>
       </div>
+      {open && <div className="nav-overlay" onClick={close} aria-hidden="true"></div>}
     </header>
   );
 }
-
-export default Navbar;

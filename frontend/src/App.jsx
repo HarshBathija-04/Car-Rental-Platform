@@ -1,36 +1,64 @@
-import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import Cars from "./pages/Cars";
-import CarDetails from "./pages/CarDetails";
-import Booking from "./pages/Booking";
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import About from "./pages/About";
+import { useEffect } from 'react';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import AppProviders from './components/AppProviders.jsx';
+import Footer from './components/Footer.jsx';
+import Navbar from './components/Navbar.jsx';
+import RequireAuth from './components/RequireAuth.jsx';
+import WakeBanner from './components/WakeBanner.jsx';
+import About from './pages/About.jsx';
+import CarDetails from './pages/CarDetails.jsx';
+import Cars from './pages/Cars.jsx';
+import Home from './pages/Home.jsx';
+import Login from './pages/Login.jsx';
+import NotFound from './pages/NotFound.jsx';
+import Register from './pages/Register.jsx';
+import Trips from './pages/Trips.jsx';
 
-import "./styles/main.css";
-import "./App.css";
-
-function App() {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/cars" element={<Cars />} />
-        <Route path="/cars/:id" element={<CarDetails />} />
-        <Route path="/booking/:id" element={<Booking />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-      <Footer />
-    </Router>
-  );
+/** SPA navigation does not scroll on its own: go to the #hash target or the top on route change. */
+function ScrollManager() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      const target = hash && document.getElementById(hash.slice(1));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      else window.scrollTo(0, 0);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash]);
+  return null;
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppProviders>
+        <ScrollManager />
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <Navbar />
+        <WakeBanner />
+        <main id="main" tabIndex={-1}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/cars" element={<Cars />} />
+            <Route path="/cars/:id" element={<CarDetails />} />
+            <Route
+              path="/trips"
+              element={
+                <RequireAuth>
+                  <Trips />
+                </RequireAuth>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/about" element={<About />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Footer />
+      </AppProviders>
+    </BrowserRouter>
+  );
+}

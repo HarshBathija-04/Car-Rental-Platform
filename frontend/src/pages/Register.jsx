@@ -1,84 +1,110 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import Field from '../components/Field.jsx';
+import { api, fieldErrors } from '../lib/api.js';
+import { useAuth, useToast } from '../lib/context.js';
 
-function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+export default function Register() {
+  const { user, signIn } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
+  const target = from ? `${from.pathname}${from.search || ''}` : '/cars';
 
-  const handleSubmit = (e) => {
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  if (user && !submitting) return <Navigate to={target} replace />;
+
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const submit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    if (name && email && password) {
-      setTimeout(() => {
-        alert('Registration successful!');
-        navigate('/login');
-      }, 500);
-    } else {
-      alert('Please fill in all fields.');
+    const local = {};
+    if (form.name.trim().length < 2) local.name = 'Enter your name';
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) local.email = 'Enter a valid email address';
+    if (form.password.length < 8) local.password = 'Use at least 8 characters';
+    if (form.confirm !== form.password) local.confirm = 'Passwords do not match';
+    setErrors(local);
+    setFormError('');
+    if (Object.keys(local).length) return;
+    setSubmitting(true);
+    try {
+      const { name, email, password } = form;
+      const session = await api('/api/auth/register', { method: 'POST', body: { name, email, password } });
+      signIn(session);
+      toast('Account created. Pick a car and some dates.');
+      navigate(target, { replace: true });
+    } catch (err) {
+      setErrors(fieldErrors(err));
+      setFormError(err.message);
+      setSubmitting(false);
     }
   };
 
   return (
-    <section className="section" style={{ paddingTop: '150px', minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div className="container" style={{ maxWidth: '400px', backgroundColor: '#f8f8f8', padding: '40px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-        <h2 className="h2 section-title" style={{ textAlign: 'center', marginBottom: '30px' }}>Register</h2>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Full Name</label>
-            <input 
-              type="text" 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Confirm Password</label>
-            <input 
-              type="password" 
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm your password"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <button type="submit" className="btn" style={{ width: '100%' }}>Register</button>
+    <div className="page page--auth">
+      <div className="auth-card">
+        <h1 className="auth-card__title">Create your account</h1>
+        <p className="muted">It takes a few seconds and keeps your trips in one place.</p>
+
+        {formError && (
+          <p className="notice notice--error" role="alert">
+            {formError}
+          </p>
+        )}
+
+        <form onSubmit={submit} noValidate className="stack">
+          <Field
+            id="name"
+            label="Full name"
+            autoComplete="name"
+            value={form.name}
+            onChange={set('name')}
+            error={errors.name}
+          />
+          <Field
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={set('email')}
+            error={errors.email}
+          />
+          <Field
+            id="password"
+            label="Password"
+            type="password"
+            autoComplete="new-password"
+            hint="At least 8 characters"
+            value={form.password}
+            onChange={set('password')}
+            error={errors.password}
+          />
+          <Field
+            id="confirm"
+            label="Confirm password"
+            type="password"
+            autoComplete="new-password"
+            value={form.confirm}
+            onChange={set('confirm')}
+            error={errors.confirm}
+          />
+          <button type="submit" className="btn btn--primary btn--lg btn--block" disabled={submitting}>
+            {submitting ? 'Creating account…' : 'Create account'}
+          </button>
         </form>
-        
-        <p style={{ textAlign: 'center', marginTop: '20px' }}>
-          Already have an account? <Link to="/login" style={{ color: '#007bff' }}>Login here</Link>
+        <p className="auth-card__switch">
+          Already have an account?{' '}
+          <Link to="/login" state={location.state}>
+            Sign in
+          </Link>
         </p>
       </div>
-    </section>
+    </div>
   );
 }
-
-export default Register;

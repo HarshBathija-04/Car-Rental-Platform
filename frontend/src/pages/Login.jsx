@@ -1,59 +1,100 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import Field from '../components/Field.jsx';
+import { api, fieldErrors } from '../lib/api.js';
+import { DEMO_ACCOUNT } from '../lib/constants.js';
+import { useAuth, useToast } from '../lib/context.js';
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function Login() {
+  const { user, signIn } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
+  const target = from ? `${from.pathname}${from.search || ''}` : '/trips';
 
-  const handleSubmit = (e) => {
+  const [form, setForm] = useState({ email: '', password: '' });
+  const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  if (user && !submitting) return <Navigate to={target} replace />;
+
+  const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  const submit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      // Simulate successful login
-      setTimeout(() => {
-        alert('Login successful!');
-        navigate('/dashboard');
-      }, 500);
-    } else {
-      alert('Please fill in both fields.');
+    const local = {};
+    if (!form.email) local.email = 'Enter your email';
+    if (!form.password) local.password = 'Enter your password';
+    setErrors(local);
+    setFormError('');
+    if (Object.keys(local).length) return;
+    setSubmitting(true);
+    try {
+      const session = await api('/api/auth/login', { method: 'POST', body: form });
+      signIn(session);
+      toast(`Welcome back, ${session.user.name.split(' ')[0]}`);
+      navigate(target, { replace: true });
+    } catch (err) {
+      setErrors(fieldErrors(err));
+      setFormError(err.message);
+      setSubmitting(false);
     }
   };
 
   return (
-    <section className="section" style={{ paddingTop: '150px', minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <div className="container" style={{ maxWidth: '400px', backgroundColor: '#f8f8f8', padding: '40px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-        <h2 className="h2 section-title" style={{ textAlign: 'center', marginBottom: '30px' }}>Login</h2>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-            />
-          </div>
-          <button type="submit" className="btn" style={{ width: '100%' }}>Login</button>
+    <div className="page page--auth">
+      <div className="auth-card">
+        <h1 className="auth-card__title">Sign in</h1>
+        <p className="muted">Book cars and manage your trips.</p>
+
+        <div className="demo-hint">
+          <ion-icon name="key-outline" aria-hidden="true"></ion-icon>
+          <p>
+            Just looking around? Use the demo account to see bookings and trips.
+            <button type="button" className="link-button" onClick={() => setForm(DEMO_ACCOUNT)}>
+              Fill in demo details
+            </button>
+          </p>
+        </div>
+
+        {formError && (
+          <p className="notice notice--error" role="alert">
+            {formError}
+          </p>
+        )}
+
+        <form onSubmit={submit} noValidate className="stack">
+          <Field
+            id="email"
+            label="Email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={set('email')}
+            error={errors.email}
+          />
+          <Field
+            id="password"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            value={form.password}
+            onChange={set('password')}
+            error={errors.password}
+          />
+          <button type="submit" className="btn btn--primary btn--lg btn--block" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign in'}
+          </button>
         </form>
-        
-        <p style={{ textAlign: 'center', marginTop: '20px' }}>
-          Don't have an account? <Link to="/register" style={{ color: '#007bff' }}>Register here</Link>
+        <p className="auth-card__switch">
+          New to Ridex?{' '}
+          <Link to="/register" state={location.state}>
+            Create an account
+          </Link>
         </p>
       </div>
-    </section>
+    </div>
   );
 }
-
-export default Login;

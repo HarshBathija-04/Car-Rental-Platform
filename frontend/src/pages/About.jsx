@@ -1,33 +1,76 @@
-function About() {
+import { Link } from 'react-router-dom';
+import { REPO_URL } from '../lib/constants.js';
+
+const PILLARS = [
+  {
+    icon: 'calendar-number-outline',
+    title: 'Availability first',
+    text: 'Search starts with dates, so you only see cars you can actually drive away in.',
+  },
+  {
+    icon: 'lock-closed-outline',
+    title: 'No double bookings',
+    text: 'Each booking runs in a database transaction that locks the car, so two people cannot grab the same dates.',
+  },
+  {
+    icon: 'sparkles-outline',
+    title: 'Advice grounded in the fleet',
+    text: 'The trip advisor only recommends cars that exist, at the prices you see.',
+  },
+];
+
+const STACK = [
+  ['Frontend', 'React 19, React Router, Vite, hand-built CSS design system'],
+  ['API', 'Node.js, Express 5, zod validation, JWT auth with bcrypt'],
+  ['Data', 'PostgreSQL with schema-scoped migrations and a seeded demo fleet'],
+  ['AI', 'Groq (gpt-oss-120b) called only from the server'],
+  ['Hosting', 'Vercel for the web app, Render for the API and database'],
+];
+
+export default function About() {
   return (
-    <section className="section" style={{ paddingTop: '150px', minHeight: '80vh' }}>
-      <div className="container" style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-        <h2 className="h2 section-title" style={{ marginBottom: '30px' }}>About Us</h2>
-        
-        <div style={{ backgroundColor: '#f8f8f8', padding: '40px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-          <h3 className="h3" style={{ marginBottom: '20px' }}>Welcome to Car Rental Platform</h3>
-          <p style={{ marginBottom: '20px', lineHeight: '1.6' }}>
-            We are dedicated to providing the best car rental experience in New York, New Jersey, and Connecticut. 
-            Our platform allows you to easily browse, search, and book a wide variety of vehicles ranging from 
-            economical compacts to luxurious full-size SUVs.
-          </p>
-          
-          <h4 style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '30px', marginBottom: '15px' }}>Our Mission</h4>
-          <p style={{ marginBottom: '20px', lineHeight: '1.6' }}>
-            To simplify the process of renting cars by offering a transparent, efficient, and user-friendly online marketplace. 
-            We strive to match every customer with the perfect vehicle for their needs and budget.
-          </p>
-          
-          <h4 style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '30px', marginBottom: '15px' }}>Contact Us</h4>
-          <p style={{ lineHeight: '1.6' }}>
-            <strong>Email:</strong> support@carrental.example.com<br />
-            <strong>Phone:</strong> 8 800 234 56 78<br />
-            <strong>Address:</strong> 123 Main Street, New York, NY 10001
-          </p>
+    <div className="page">
+      <div className="container container--narrow prose">
+        <p className="eyebrow">About Ridex</p>
+        <h1 className="page__title">Car rental without the back-and-forth</h1>
+        <p className="lead">
+          Ridex is a self-drive rental platform for Mumbai, Pune and Bengaluru. It is a portfolio project by Harsh
+          Bathija: the bookings, accounts and availability are real records in a real database, but no car will turn up
+          at your door.
+        </p>
+
+        <ul className="pillars">
+          {PILLARS.map((p) => (
+            <li key={p.title}>
+              <span className="pillars__icon" aria-hidden="true">
+                <ion-icon name={p.icon}></ion-icon>
+              </span>
+              <h2>{p.title}</h2>
+              <p>{p.text}</p>
+            </li>
+          ))}
+        </ul>
+
+        <h2>Under the hood</h2>
+        <dl className="stack-list">
+          {STACK.map(([k, v]) => (
+            <div key={k}>
+              <dt>{k}</dt>
+              <dd>{v}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div className="cta-row">
+          <Link to="/cars" className="btn btn--primary">
+            Browse the fleet
+          </Link>
+          <a href={REPO_URL} className="btn btn--ghost" target="_blank" rel="noreferrer">
+            <ion-icon name="logo-github" aria-hidden="true"></ion-icon>
+            View the source
+          </a>
         </div>
       </div>
-    </section>
+    </div>
   );
 }
-
-export default About;

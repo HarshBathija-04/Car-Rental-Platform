@@ -1,184 +1,122 @@
 import { Link } from 'react-router-dom';
-import SearchFilter from '../components/SearchFilter';
-import CarCard from '../components/CarCard';
-import carsData from '../data/cars.json';
+import { CarGrid } from '../components/CarCard.jsx';
+import SearchFilter from '../components/SearchFilter.jsx';
+import { ErrorState } from '../components/States.jsx';
+import TripAdvisor from '../components/TripAdvisor.jsx';
+import { CITIES } from '../lib/constants.js';
+import { formatINR } from '../lib/dates.js';
+import { useApi } from '../lib/useApi.js';
 
-function Home() {
-  const featuredCars = carsData.slice(0, 6); // Just returning 6 for now
+const STEPS = [
+  {
+    icon: 'calendar-outline',
+    title: 'Choose your dates',
+    text: 'Start with when you need the car. The fleet filters itself to what is actually free.',
+  },
+  {
+    icon: 'car-sport-outline',
+    title: 'Pick the right car',
+    text: 'Compare seats, fuel and efficiency side by side, or ask the trip advisor for a shortlist.',
+  },
+  {
+    icon: 'key-outline',
+    title: 'Book and drive',
+    text: 'Your dates are locked the moment you confirm. Change of plan? Cancel upcoming trips from My trips.',
+  },
+];
+
+export default function Home() {
+  const { data, error, loading, reload } = useApi('/api/cars');
+  const cars = data?.cars;
+  const from = cars?.length ? Math.min(...cars.map((c) => c.pricePerDay)) : null;
 
   return (
-    <article>
-      {/* HERO SECTION */}
-      <section className="section hero" id="home">
-        <div className="container">
-
-          <div className="hero-content">
-            <h2 className="h1 hero-title">The easy way to takeover a lease</h2>
-            <p className="hero-text">
-              Live in New York, New Jersey and Connecticut!
+    <>
+      <section className="hero">
+        <div className="container hero__inner">
+          <div className="hero__content">
+            <p className="eyebrow">Self-drive rentals in {CITIES.join(' · ')}</p>
+            <h1 className="hero__title">Pick the dates. We will show you what is free.</h1>
+            <p className="hero__text">
+              No more enquiring about cars that turn out to be booked. Every car on Ridex shows live availability, and
+              your booking locks the dates instantly.
             </p>
           </div>
-
-          <div className="hero-banner"></div>
-
+          <figure className="hero__media">
+            <img src="/images/hero-banner.jpg" alt="A BMW i8 driving through a tunnel" width="1391" height="1198" />
+            <figcaption className="hero__stat" aria-live="polite">
+              {cars ? (
+                <>
+                  <strong>{cars.length} cars</strong>
+                  <span>from {formatINR(from)} / day</span>
+                </>
+              ) : (
+                <span>Loading the fleet…</span>
+              )}
+            </figcaption>
+          </figure>
           <SearchFilter />
-
         </div>
       </section>
 
-      {/* FEATURED CAR SECTION */}
-      <section className="section featured-car" id="featured-car">
+      <section className="section" aria-labelledby="featured-title">
         <div className="container">
-
-          <div className="title-wrapper">
-            <h2 className="h2 section-title">Featured cars</h2>
-            <Link to="/cars" className="featured-car-link">
-              <span>View more</span>
-              <ion-icon name="arrow-forward-outline"></ion-icon>
+          <div className="section__head">
+            <div>
+              <p className="eyebrow">The fleet</p>
+              <h2 id="featured-title" className="section__title">
+                Easy on the wallet
+              </h2>
+            </div>
+            <Link to="/cars" className="link-arrow">
+              See all cars <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
             </Link>
           </div>
+          {error ? (
+            <ErrorState error={error} onRetry={reload} />
+          ) : (
+            <CarGrid cars={cars?.slice(0, 3)} loading={loading} />
+          )}
+        </div>
+      </section>
 
-          <ul className="featured-car-list">
-            {featuredCars.map(car => (
-              <CarCard key={car.id} car={car} />
+      <section className="section section--tinted" id="advisor" aria-labelledby="advisor-title">
+        <div className="container advisor-section">
+          <div className="advisor-section__intro">
+            <p className="eyebrow">
+              <ion-icon name="sparkles" aria-hidden="true"></ion-icon> AI trip advisor
+            </p>
+            <h2 id="advisor-title" className="section__title">
+              Not sure which car fits?
+            </h2>
+            <p>
+              Describe the trip in your own words. The advisor reads the live fleet and suggests up to three cars, with
+              the reason for each.
+            </p>
+          </div>
+          <TripAdvisor cars={cars} />
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="steps-title">
+        <div className="container">
+          <p className="eyebrow">How it works</p>
+          <h2 id="steps-title" className="section__title">
+            From dates to driving in three steps
+          </h2>
+          <ol className="steps">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="step">
+                <span className={`step__icon step__icon--${i + 1}`} aria-hidden="true">
+                  <ion-icon name={s.icon}></ion-icon>
+                </span>
+                <h3 className="step__title">{s.title}</h3>
+                <p>{s.text}</p>
+              </li>
             ))}
-          </ul>
-
+          </ol>
         </div>
       </section>
-
-      {/* GET STARTED SECTION */}
-      <section className="section get-start">
-        <div className="container">
-
-          <h2 className="h2 section-title">Get started with 4 simple steps</h2>
-
-          <ul className="get-start-list">
-            <li>
-              <div className="get-start-card">
-                <div className="card-icon icon-1">
-                  <ion-icon name="person-add-outline"></ion-icon>
-                </div>
-                <h3 className="card-title">Create a profile</h3>
-                <p className="card-text">
-                  If you are going to use a passage of Lorem Ipsum, you need to be sure.
-                </p>
-                <Link to="/register" className="card-link">Get started</Link>
-              </div>
-            </li>
-
-            <li>
-              <div className="get-start-card">
-                <div className="card-icon icon-2">
-                  <ion-icon name="car-outline"></ion-icon>
-                </div>
-                <h3 className="card-title">Tell us what car you want</h3>
-                <p className="card-text">
-                  Various versions have evolved over the years, sometimes by accident, sometimes on purpose
-                </p>
-              </div>
-            </li>
-
-            <li>
-              <div className="get-start-card">
-                <div className="card-icon icon-3">
-                  <ion-icon name="person-outline"></ion-icon>
-                </div>
-                <h3 className="card-title">Match with seller</h3>
-                <p className="card-text">
-                  It to make a type specimen book. It has survived not only five centuries.
-                </p>
-              </div>
-            </li>
-
-            <li>
-              <div className="get-start-card">
-                <div className="card-icon icon-4">
-                  <ion-icon name="card-outline"></ion-icon>
-                </div>
-                <h3 className="card-title">Make a deal</h3>
-                <p className="card-text">
-                  There are many variations of passages of Lorem available.
-                </p>
-              </div>
-            </li>
-          </ul>
-
-        </div>
-      </section>
-
-      {/* BLOG SECTION */}
-      <section className="section blog" id="blog">
-        <div className="container">
-          <h2 className="h2 section-title">Our Blog</h2>
-
-          <ul className="blog-list has-scrollbar">
-            <li>
-              <div className="blog-card">
-                <figure className="card-banner">
-                  <a href="#">
-                    <img src="/images/blog-1.jpg" alt="Opening of new offices of the company" loading="lazy" className="w-100" />
-                  </a>
-                  <a href="#" className="btn card-badge">Company</a>
-                </figure>
-                <div className="card-content">
-                  <h3 className="h3 card-title"><a href="#">Opening of new offices of the company</a></h3>
-                  <div className="card-meta">
-                    <div className="publish-date">
-                      <ion-icon name="time-outline"></ion-icon>
-                      <time dateTime="2022-01-14">January 14, 2026</time>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            
-            <li>
-              <div className="blog-card">
-                <figure className="card-banner">
-                  <a href="#">
-                    <img src="/images/blog-2.jpg" alt="What cars are most vulnerable" loading="lazy" className="w-100" />
-                  </a>
-                  <a href="#" className="btn card-badge">Repair</a>
-                </figure>
-                <div className="card-content">
-                  <h3 className="h3 card-title"><a href="#">What cars are most vulnerable</a></h3>
-                  <div className="card-meta">
-                    <div className="publish-date">
-                      <ion-icon name="time-outline"></ion-icon>
-                      <time dateTime="2022-01-14">January 14, 2026</time>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            
-            <li>
-              <div className="blog-card">
-                <figure className="card-banner">
-                  <a href="#">
-                    <img src="/images/blog-3.jpg" alt="Statistics showed which average age" loading="lazy" className="w-100" />
-                  </a>
-                  <a href="#" className="btn card-badge">Cars</a>
-                </figure>
-                <div className="card-content">
-                  <h3 className="h3 card-title"><a href="#">Statistics showed which average age</a></h3>
-                  <div className="card-meta">
-                    <div className="publish-date">
-                      <ion-icon name="time-outline"></ion-icon>
-                      <time dateTime="2022-01-14">January 14, 2026</time>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-
-          </ul>
-        </div>
-      </section>
-
-    </article>
+    </>
   );
 }
-
-export default Home;
