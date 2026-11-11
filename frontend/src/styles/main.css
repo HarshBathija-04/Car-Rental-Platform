@@ -840,7 +840,6 @@ textarea::placeholder {
   outline: 1px solid hsla(0, 0%, 0%, 0.08);
   outline-offset: -1px;
 }
-/* ticket-stub stat on the hero photo */
 .hero__stat {
   position: absolute;
   top: var(--space-4);
@@ -853,17 +852,6 @@ textarea::placeholder {
   font-size: var(--fs-6);
   color: var(--color-muted);
   font-variant-numeric: tabular-nums;
-}
-.hero__stat::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -7px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--color-bg);
-  transform: translateY(-50%);
 }
 .hero__stat strong {
   font-family: var(--ff-nunito);
@@ -882,6 +870,11 @@ textarea::placeholder {
 .hero-search__field {
   display: grid;
   gap: 6px;
+}
+/* date inputs and selects differ in natural height; pin both so the labels line up */
+.hero-search select,
+.hero-search input {
+  height: 48px;
 }
 .hero-search label {
   font-family: var(--ff-nunito);
@@ -1552,6 +1545,10 @@ textarea::placeholder {
   background: var(--color-sunken);
   box-shadow: none;
 }
+.trip--cancelled .trip__price {
+  color: var(--color-muted);
+  text-decoration: line-through;
+}
 .trip--cancelled .trip__img {
   filter: grayscale(1);
   opacity: 0.7;
@@ -1621,6 +1618,7 @@ textarea::placeholder {
     grid-column: auto;
     flex-direction: column;
     align-items: end;
+    min-width: 9.5rem;
     padding: 0 0 0 var(--space-5);
     border-top: 0;
     border-left: 1px dashed var(--color-border-strong);

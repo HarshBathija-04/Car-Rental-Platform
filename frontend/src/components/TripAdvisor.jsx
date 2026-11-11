@@ -29,7 +29,7 @@ export default function TripAdvisor({ cars }) {
     } catch (err) {
       setError(
         err.code === 'AI_UNAVAILABLE'
-          ? 'The advisor is offline right now. Browse the fleet instead, every car lists seats and fuel.'
+          ? 'The advisor is offline right now. Browse the fleet instead: every car lists its seats, fuel and efficiency.'
           : err.message,
       );
       setStatus('error');

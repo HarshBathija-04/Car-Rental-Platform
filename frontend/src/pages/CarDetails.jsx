@@ -225,7 +225,7 @@ export default function CarDetails() {
                   </div>
                   <div className="quote__total">
                     <dt>Total</dt>
-                    <dd>{formatINR(car.pricePerDay * days)}</dd>
+                    <dd>{days ? formatINR(car.pricePerDay * days) : '–'}</dd>
                   </div>
                 </dl>
 

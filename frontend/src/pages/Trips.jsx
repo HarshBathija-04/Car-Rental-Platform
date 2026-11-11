@@ -124,7 +124,7 @@ export default function Trips() {
                 <dd>{bookings.filter((b) => b.status === 'confirmed').length}</dd>
               </div>
               <div>
-                <dt>Total spent</dt>
+                <dt>Total booked</dt>
                 <dd>{formatINR(spent)}</dd>
               </div>
             </dl>

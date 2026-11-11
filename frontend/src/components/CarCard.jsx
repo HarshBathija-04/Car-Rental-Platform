@@ -53,7 +53,7 @@ export default function CarCard({ car, search = '' }) {
             <span> / day</span>
           </p>
           <Link to={href} className="btn btn--primary btn--sm">
-            View dates
+            {search ? 'Book these dates' : 'View dates'}
           </Link>
         </div>
       </div>

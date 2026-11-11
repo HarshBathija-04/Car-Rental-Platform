@@ -20,7 +20,8 @@ function ScrollManager() {
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
       const target = hash && document.getElementById(hash.slice(1));
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (target) target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
       else window.scrollTo(0, 0);
     });
     return () => cancelAnimationFrame(frame);
